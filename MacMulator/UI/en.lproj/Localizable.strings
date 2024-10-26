@@ -9,6 +9,8 @@
 "AppDelegate.exportToParallelsComplete" = "Export to Parallels complete.";
 "AppDelegate.exportFailed" = "Export failed with error: %@";
 "AppDelegate.importFailed" = "Import failed with error: %@";
+"AppDelegate.detachImage" = "Detach Image";
+"AppDelegate.configure" = "Configure";
 "ConsoleViewController.vmNotRunning" = "Current VM is not running";
 "CreateVMFileViewController.preparingDownload" = "Preparing to download macOS Installer...";
 "CreateVMFileViewController.timeRemainingCalculating" = "Estimate time remaining: Calculating...";

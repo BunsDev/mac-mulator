@@ -2686,7 +2686,7 @@ Raspberry Pi</mutableString>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="Cqf-f6-wTR"/>
-                                        <menuItem title="Configura" id="Qce-a5-l81">
+                                        <menuItem title="Modifica" id="Qce-a5-l81">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="editVMmenuBarClicked:" target="Voe-Tx-rLC" id="kyI-bi-KaY"/>
@@ -2706,6 +2706,27 @@ Raspberry Pi</mutableString>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="Yf2-Qx-Hk7"/>
+                                        <menuItem title="Dispositivi USB" id="AAJ-Uy-ziq">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <menu key="submenu" title="Dispositivi USB" id="y6M-2g-nBc">
+                                                <items>
+                                                    <menuItem title="Connetti Immagine..." id="ErO-w9-p6h">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <connections>
+                                                            <action selector="attachUSBImageMenuBarClicked:" target="Voe-Tx-rLC" id="8GZ-Ag-909"/>
+                                                        </connections>
+                                                    </menuItem>
+                                                    <menuItem isSeparatorItem="YES" id="lNm-9b-2x1"/>
+                                                    <menuItem title="Configura" id="C9f-wr-OnI">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <connections>
+                                                            <action selector="editVMmenuBarClicked:" target="Voe-Tx-rLC" id="KuG-z9-rbY"/>
+                                                        </connections>
+                                                    </menuItem>
+                                                </items>
+                                            </menu>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
                                         <menuItem title="Esporta come" id="cZp-mO-IqY">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Esporta come" id="3Ko-t4-AGP">
@@ -2719,7 +2740,6 @@ Raspberry Pi</mutableString>
                                                 </items>
                                             </menu>
                                         </menuItem>
-                                        <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
                                         <menuItem title="Converti in VM QEMU" id="R2R-CL-gW6">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
@@ -2818,6 +2838,7 @@ Raspberry Pi</mutableString>
                         <outlet property="startVMInRecoveryMenuItem" destination="zpB-kc-SoG" id="diF-FY-1ag"/>
                         <outlet property="startVMMenuItem" destination="rPi-T3-q1r" id="e2f-AR-nAc"/>
                         <outlet property="stopVMMenuItem" destination="Q3F-uG-aFl" id="F1f-9J-nqb"/>
+                        <outlet property="usbDevicesMenuItem" destination="AAJ-Uy-ziq" id="wDL-bz-i2U"/>
                         <outlet property="vmMenu" destination="Ah7-Df-n96" id="XtM-qV-UmM"/>
                     </connections>
                 </customObject>
@@ -3376,7 +3397,7 @@ Raspberry Pi</mutableString>
                 </windowController>
                 <customObject id="hud-c8-Y7E" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2050" y="-447"/>
+            <point key="canvasLocation" x="-2014" y="-136"/>
         </scene>
         <!--Root View Controller-->
         <scene sceneID="mC1-nw-Yn8">
@@ -3705,8 +3726,8 @@ Raspberry Pi</mutableString>
                                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="windows.large" id="juw-gh-9zy"/>
                                                     </imageView>
                                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oHu-X9-tE7">
-                                                        <rect key="frame" x="152" y="13" width="162" height="32"/>
-                                                        <buttonCell key="cell" type="push" title="Configura questa VM" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cC3-21-evY">
+                                                        <rect key="frame" x="156" y="13" width="155" height="32"/>
+                                                        <buttonCell key="cell" type="push" title="Modifica questa VM" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cC3-21-evY">
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>

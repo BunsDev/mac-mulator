@@ -81,7 +81,7 @@ class VirtualMachineViewController: NSViewController {
     }
     
     @IBAction func editVM(_ sender: Any) {
-        self.view.window?.windowController?.performSegue(withIdentifier: MacMulatorConstants.EDIT_VM_SEGUE, sender: rootController?.currentVm);
+        self.view.window?.windowController?.performSegue(withIdentifier: MacMulatorConstants.EDIT_VM_SEGUE, sender: [nil, rootController?.currentVm]);
     }
     
     @IBAction
@@ -124,6 +124,17 @@ class VirtualMachineViewController: NSViewController {
     
     func startVMInRecovery(sender: Any) {
         startVM(sender: sender, inRecovery: true)
+    }
+    
+    func attachUSBImageToVM(sender: Any, virtualDrive: VirtualDrive) {
+        if #available(macOS 15.0, *) {
+            if let rootController = self.rootController, let vm = rootController.currentVm, rootController.isVMRunning(vm) {
+                if sender as? String == MacMulatorConstants.mainMenuSender && vm.type == MacMulatorConstants.APPLE_VM {
+                    let runner = self.rootController?.getRunnerForRunningVM(vm) as! VirtualizationFrameworkVirtualMachineRunner
+                    runner.attachUSBImageToVM(virtualDrive: virtualDrive)
+                }
+            }
+        }
     }
     
     override func prepare(for segue: NSStoryboardSegue, sender: Any?) {

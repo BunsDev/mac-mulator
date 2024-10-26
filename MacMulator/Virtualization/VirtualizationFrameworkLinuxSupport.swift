@@ -47,21 +47,17 @@ class VirtualizationFrameworkLinuxSupport : VirtualizationFrameworkSupport{
             witdh: resolution[0],
             height: resolution[1])]
         
-        let disksArray = NSMutableArray()
-        if installMedia != "" {
-            disksArray.add(LinuxVirtualMachineConfigurationHelper.createUSBMassStorageDeviceConfiguration(installMedia))
-        }
-        disksArray.add(LinuxVirtualMachineConfigurationHelper.createBlockDeviceConfiguration(path: Utils.findMainDrive(vm.drives)!.path))
-        guard let disks = disksArray as? [VZStorageDeviceConfiguration] else {
-            fatalError("Invalid disksArray.")
-        }
-        
-        virtualMachineConfiguration.storageDevices = disks
+        virtualMachineConfiguration.storageDevices = [LinuxVirtualMachineConfigurationHelper.createBlockDeviceConfiguration(path: Utils.findMainDrive(vm.drives)!.path)]
         virtualMachineConfiguration.networkDevices = [LinuxVirtualMachineConfigurationHelper.createNetworkDeviceConfiguration()]
         virtualMachineConfiguration.pointingDevices = [LinuxVirtualMachineConfigurationHelper.createPointingDeviceConfiguration()]
         virtualMachineConfiguration.keyboards = [LinuxVirtualMachineConfigurationHelper.createKeyboardConfiguration()]
         virtualMachineConfiguration.audioDevices = [LinuxVirtualMachineConfigurationHelper.createAudioDeviceConfiguration()]
         virtualMachineConfiguration.consoleDevices = [LinuxVirtualMachineConfigurationHelper.createSpiceAgentConsoleDeviceConfiguration()]
+        
+        if #available(macOS 15.0, *) {
+            let usbController = LinuxVirtualMachineConfigurationHelper.createUSBControllerConfiguration()
+            virtualMachineConfiguration.usbControllers = [usbController]
+        }
         
         try! virtualMachineConfiguration.validate()
         if #available(macOS 14.0, *) {

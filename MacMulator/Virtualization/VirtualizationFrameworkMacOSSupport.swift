@@ -53,7 +53,20 @@ class VirtualizationFrameworkMacOSSupport : VirtualizationFrameworkSupport {
                 ppi: 110)]
         }
         
-        virtualMachineConfiguration.storageDevices = [MacOSVirtualMachineConfigurationHelper.createBlockDeviceConfiguration(path: Utils.findMainDrive(vm.drives)!.path)]
+        let disksArray = NSMutableArray()
+        if #available(macOS 13.0, *) {
+            for drive in vm.drives {
+                if drive.mediaType == QemuConstants.MEDIATYPE_USB {
+                    disksArray.add(LinuxVirtualMachineConfigurationHelper.createUSBMassStorageDeviceConfiguration(drive.path))
+                }
+            }
+        }
+        disksArray.add(MacOSVirtualMachineConfigurationHelper.createBlockDeviceConfiguration(path: Utils.findMainDrive(vm.drives)!.path))
+        guard let disks = disksArray as? [VZStorageDeviceConfiguration] else {
+            fatalError("Invalid disksArray.")
+        }
+        
+        virtualMachineConfiguration.storageDevices = disks
         if let macAddress = vm.macAddress {
             virtualMachineConfiguration.networkDevices = [MacOSVirtualMachineConfigurationHelper.createNetworkDeviceConfiguration(macAddress: macAddress)]
         } else {
@@ -62,6 +75,10 @@ class VirtualizationFrameworkMacOSSupport : VirtualizationFrameworkSupport {
         virtualMachineConfiguration.pointingDevices = MacOSVirtualMachineConfigurationHelper.createPointingDeviceConfigurations(vm: vm)
         virtualMachineConfiguration.keyboards = [MacOSVirtualMachineConfigurationHelper.createKeyboardConfiguration(vm: vm)]
         virtualMachineConfiguration.audioDevices = [MacOSVirtualMachineConfigurationHelper.createAudioDeviceConfiguration()]
+        
+        if #available(macOS 15.0, *) {
+            virtualMachineConfiguration.usbControllers = [MacOSVirtualMachineConfigurationHelper.createUSBControllerConfiguration()]
+        }
         
         try! virtualMachineConfiguration.validate()
         if #available(macOS 14.0, *) {

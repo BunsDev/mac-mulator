@@ -81,11 +81,16 @@ class LinuxVirtualMachineConfigurationHelper {
         return efiVariableStore
     }
     
-    static func createUSBMassStorageDeviceConfiguration(_ installMedia: String) -> VZUSBMassStorageDeviceConfiguration {
-        guard let intallerDiskAttachment = try? VZDiskImageStorageDeviceAttachment(url: URL(fileURLWithPath: installMedia), readOnly: true) else {
+    static func createUSBMassStorageDeviceConfiguration(_ path: String) -> VZUSBMassStorageDeviceConfiguration {
+        guard let intallerDiskAttachment = try? VZDiskImageStorageDeviceAttachment(url: URL(fileURLWithPath: path), readOnly: true) else {
             fatalError("Failed to create installer's disk attachment.")
         }
 
         return VZUSBMassStorageDeviceConfiguration(attachment: intallerDiskAttachment)
+    }
+    
+    @available(macOS 15.0, *)
+    static func createUSBControllerConfiguration() -> VZUSBControllerConfiguration {
+        return VZXHCIControllerConfiguration()
     }
 }

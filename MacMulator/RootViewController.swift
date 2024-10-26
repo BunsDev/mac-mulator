@@ -68,12 +68,16 @@ class RootViewController: NSSplitViewController, NSWindowDelegate {
         vmController?.pauseVM(sender: sender)
     }
     
+    func attachUSBImageToVM(_ sender: Any, _ virtualDrive: VirtualDrive) {
+        vmController?.attachUSBImageToVM(sender: sender, virtualDrive: virtualDrive)
+    }
+    
     func showConsoleMenubarClicked(_ sender: Any) {
         self.view.window?.windowController?.performSegue(withIdentifier: MacMulatorConstants.SHOW_CONSOLE_SEGUE, sender: self);
     }
     
     func editVMmenuBarClicked(_ sender: Any) {
-        NSApp.mainWindow?.windowController?.performSegue(withIdentifier: MacMulatorConstants.EDIT_VM_SEGUE, sender: currentVm);
+        NSApp.mainWindow?.windowController?.performSegue(withIdentifier: MacMulatorConstants.EDIT_VM_SEGUE, sender: [sender, currentVm]) // The sender here determines which tab to show
     }
     
     @IBAction func cloneVMMenuBarClicked(_ sender: Any) {
@@ -284,5 +288,6 @@ class RootViewController: NSSplitViewController, NSWindowDelegate {
             runner.stopVM(guestStopped: false)
         }
     }
+
 }
 
