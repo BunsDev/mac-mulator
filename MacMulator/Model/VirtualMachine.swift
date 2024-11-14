@@ -19,7 +19,6 @@ class VirtualMachine: Codable, Hashable {
     var memory: Int32
     var displayResolution: String
     var displayOrigin: String?
-    var qemuBootLoader: Bool
     var networkDevice: String?
     var videoDevice: String?
     var drives: [VirtualDrive]
@@ -30,12 +29,13 @@ class VirtualMachine: Codable, Hashable {
     var macAddress: String?
     var type: String?
     var pauseSupported: Bool? = false
+    var bootMode: String?
     
     private enum CodingKeys: String, CodingKey {
-        case os, subtype, architecture, displayName, description, cpus, memory, displayResolution, displayOrigin, qemuBootLoader, networkDevice, videoDevice, drives, qemuPath, qemuCommand, hvf, portMappings, macAddress, type;
+        case os, subtype, architecture, displayName, description, cpus, memory, displayResolution, displayOrigin, networkDevice, videoDevice, drives, qemuPath, qemuCommand, hvf, portMappings, macAddress, type, bootMode;
     }
     
-    init(os: String, subtype: String, architecture: String, path: String, displayName: String, description: String, memory: Int32, cpus: Int, displayResolution: String, displayOrigin: String, networkDevice: String, videoDevice: String, qemuBootloader: Bool, hvf: Bool, macAddress: String?, type: String) {
+    init(os: String, subtype: String, architecture: String, path: String, displayName: String, description: String, memory: Int32, cpus: Int, displayResolution: String, displayOrigin: String, networkDevice: String, videoDevice: String, hvf: Bool, macAddress: String?, type: String, bootMode: String) {
         self.os = os
         self.subtype = subtype
         self.architecture = architecture
@@ -48,19 +48,32 @@ class VirtualMachine: Codable, Hashable {
         self.displayOrigin = displayOrigin
         self.networkDevice = networkDevice
         self.videoDevice = videoDevice
-        self.qemuBootLoader = qemuBootloader
         self.hvf = hvf
         self.drives = []
         self.portMappings = [PortMapping(name: NSLocalizedString("VirtualMachine.sshPortMapping", comment: ""), vmPort: 22, hostPort: Utils.random(digits: 2, suffix: 22))]
         self.macAddress = macAddress
         self.type = type
+        self.bootMode = bootMode
     }
     
-    func addVirtualDrive(_ drive: VirtualDrive){
+    func addVirtualDrive(_ drive: VirtualDrive) {
         drives.append(drive);
     }
     
-    func addPortMapping(_ portMapping: PortMapping){
+    func removeVirtualDrive(_ path: String) {
+        if let index = drives.firstIndex(where: { $0.path == path }) {
+            drives.remove(at: index)
+        }
+    }
+    
+    func containsVirtualDrive(_ path: String) -> Bool {
+        if let index = drives.firstIndex(where: { $0.path == path }) {
+            return true
+        }
+        return false
+    }
+    
+    func addPortMapping(_ portMapping: PortMapping) {
         portMappings?.append(portMapping);
     }
     
@@ -86,7 +99,7 @@ class VirtualMachine: Codable, Hashable {
             if drive.mediaType != QemuConstants.MEDIATYPE_CDROM {
                 if drive.mediaType == QemuConstants.MEDIATYPE_DISK {
                     drive.path = plistFilePath + "/" + drive.name + "." + MacMulatorConstants.DISK_EXTENSION;
-                } else if drive.mediaType == QemuConstants.MEDIATYPE_EFI || drive.mediaType == QemuConstants.MEDIATYPE_EFI_SECURE || drive.mediaType == QemuConstants.MEDIATYPE_EFI_VARS {
+                } else if drive.mediaType == QemuConstants.MEDIATYPE_EFI || drive.mediaType == QemuConstants.MEDIATYPE_EFI_SECURE || drive.mediaType == QemuConstants.MEDIATYPE_EFI_VARS || drive.mediaType == QemuConstants.MEDIATYPE_EFI_SECURE_VARS {
                     drive.path = plistFilePath + "/" + drive.name + "." + MacMulatorConstants.EFI_EXTENSION;
                 } else if drive.mediaType == QemuConstants.MEDIATYPE_OPENCORE {
                     drive.path = plistFilePath + "/" + drive.name + "." + MacMulatorConstants.IMG_EXTENSION;

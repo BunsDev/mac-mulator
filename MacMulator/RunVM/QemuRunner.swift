@@ -97,8 +97,8 @@ class QemuRunner : VirtualMachineRunner {
                         builder = builder.withEfi(file: drive.path);
                     } else if drive.mediaType == QemuConstants.MEDIATYPE_EFI_SECURE {
                         builder = builder.withEfiSecure(file: drive.path)
-                    } else if drive.mediaType == QemuConstants.MEDIATYPE_EFI_VARS {
-                        builder = builder.withEfiVars(file: drive.path, global: virtualMachine.architecture == QemuConstants.ARCH_X64 )
+                    } else if drive.mediaType == QemuConstants.MEDIATYPE_EFI_VARS || drive.mediaType == QemuConstants.MEDIATYPE_EFI_SECURE_VARS {
+                        builder = builder.withEfiVars(file: drive.path, global: false)
                     } else {
                         let mediaType = setupMediaType(virtualMachine.subtype, drive);
                         let path = setupPath(drive, virtualMachine);
@@ -252,8 +252,8 @@ class QemuRunner : VirtualMachineRunner {
             .withBios(QemuConstants.PC_BIOS)
             .withCpus(virtualMachine.cpus)
             .withBootArg(computeBootArg(virtualMachine))
-            .withDisplay(virtualMachine.os == QemuConstants.OS_LINUX ? QemuConstants.DISPLAY_DEFAULT : nil)
-            .withShowCursor(virtualMachine.os == QemuConstants.OS_LINUX ? true : false)
+            .withDisplay(QemuConstants.DISPLAY_COCOA)
+            .withShowCursor(false)
             .withMachine(QemuConstants.MACHINE_TYPE_Q35, [])
             .withMemory(virtualMachine.memory)
             .withVga(videoDevice)
@@ -356,11 +356,6 @@ class QemuRunner : VirtualMachineRunner {
     }
     
     fileprivate func computeBootArg(_ vm: VirtualMachine) -> String {
-        
-        if vm.qemuBootLoader {
-            return QemuConstants.ARG_BOOTLOADER
-        }
-        
         for drive in vm.drives {
             if drive.isBootDrive {
                 if drive.mediaType == QemuConstants.MEDIATYPE_DISK {
@@ -394,7 +389,7 @@ class QemuRunner : VirtualMachineRunner {
     
     fileprivate func sanitizeCPUTypeForIntel(_ isNative: Bool) -> String {
         var cpuType = Utils.getCpuTypeForSubType(virtualMachine.os, virtualMachine.subtype, isNative);
-        if (cpuType != QemuConstants.CPU_HOST &&
+        if (cpuType != QemuConstants.CPU_HOST_PDPE_1GB &&
             cpuType != QemuConstants.CPU_PENRYN &&
             cpuType != QemuConstants.CPU_PENRYN_SSE &&
             cpuType != QemuConstants.CPU_SANDY_BRIDGE &&
@@ -402,8 +397,8 @@ class QemuRunner : VirtualMachineRunner {
             cpuType != QemuConstants.CPU_SKYLAKE_CLIENT &&
             cpuType != QemuConstants.CPU_ICELAKE_SERVER &&
             cpuType != QemuConstants.CPU_QEMU64 &&
-            cpuType != QemuConstants.CPU_MAX) {
-            cpuType = QemuConstants.CPU_MAX;
+            cpuType != QemuConstants.CPU_MAX_PDPE_1GB) {
+            cpuType = QemuConstants.CPU_MAX_PDPE_1GB;
         }
         return cpuType
     }

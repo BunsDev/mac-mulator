@@ -516,7 +516,7 @@ class Utils {
         if let cpu = definedCpu {
             return cpu;
         } else {
-            return isNative ? QemuConstants.CPU_HOST : QemuConstants.CPU_QEMU64
+            return isNative ? getHostCPU() : QemuConstants.CPU_QEMU64
         }
     }
     
@@ -548,6 +548,10 @@ class Utils {
         return getBoolValueForSubType(os, subtype, 18, false)
     }
     
+    static func getBootModeForSubType(_ os: String, _ subtype: String?) -> String {
+        return getStringValueForSubType(os, subtype, 20) ?? QemuConstants.BOOT_BIOS
+    }
+    
     static func computeDrivesTableSize(_ virtualMachine: VirtualMachine?) -> Int {
         var size = 0;
         if let vm = virtualMachine {
@@ -555,6 +559,7 @@ class Utils {
                 if drive.mediaType != QemuConstants.MEDIATYPE_EFI &&
                     drive.mediaType != QemuConstants.MEDIATYPE_EFI_SECURE &&
                     drive.mediaType != QemuConstants.MEDIATYPE_EFI_VARS &&
+                    drive.mediaType != QemuConstants.MEDIATYPE_EFI_SECURE_VARS &&
                     drive.mediaType != QemuConstants.MEDIATYPE_OPENCORE &&
                     drive.mediaType != QemuConstants.MEDIATYPE_NVRAM &&
                     drive.mediaType != QemuConstants.MEDIATYPE_BOOTROM &&
@@ -576,7 +581,7 @@ class Utils {
                     // end loop and return
                     return row + counter;
                 }
-                if drive.mediaType == QemuConstants.MEDIATYPE_EFI || drive.mediaType == QemuConstants.MEDIATYPE_EFI_SECURE || drive.mediaType == QemuConstants.MEDIATYPE_EFI_VARS || drive.mediaType == QemuConstants.MEDIATYPE_OPENCORE || drive.mediaType == QemuConstants.MEDIATYPE_NVRAM {
+                if drive.mediaType == QemuConstants.MEDIATYPE_EFI || drive.mediaType == QemuConstants.MEDIATYPE_EFI_SECURE || drive.mediaType == QemuConstants.MEDIATYPE_EFI_VARS || drive.mediaType == QemuConstants.MEDIATYPE_EFI_SECURE_VARS || drive.mediaType == QemuConstants.MEDIATYPE_OPENCORE || drive.mediaType == QemuConstants.MEDIATYPE_NVRAM {
                     counter += 1;
                 }
                 iterationIndex += 1
@@ -730,6 +735,14 @@ class Utils {
 #endif
     }
     
+    static func getHostCPU() -> String {
+#if arch(arm64)
+        return QemuConstants.CPU_HOST
+#else
+        return QemuConstants.CPU_HOST_PDPE_1GB
+#endif
+    }
+    
     static func getPreferredMachineType() -> String {
 #if arch(arm64)
         return QemuConstants.MACHINE_TYPE_VIRT_HIGHMEM
@@ -742,7 +755,7 @@ class Utils {
 #if arch(arm64)
         return QemuConstants.CPU_HOST
 #else
-        return QemuConstants.CPU_ICELAKE_SERVER
+        return QemuConstants.CPU_SKYLAKE_CLIENT
 #endif
     }
     
@@ -766,7 +779,7 @@ class Utils {
 #if arch(arm64)
         return QemuConstants.VGA_RAMFB
 #else
-        return QemuConstants.VGA_VIRTIO
+        return QemuConstants.VGA_VIRTIO_GPU
 #endif
     }
     
@@ -898,7 +911,7 @@ class Utils {
     }
     
     static func sortDrives(_ virtualMachine: VirtualMachine) {
-        let order = [QemuConstants.MEDIATYPE_EFI, QemuConstants.MEDIATYPE_EFI_SECURE, QemuConstants.MEDIATYPE_EFI_VARS, QemuConstants.MEDIATYPE_OPENCORE,  QemuConstants.MEDIATYPE_DISK, QemuConstants.MEDIATYPE_NVME, QemuConstants.MEDIATYPE_CDROM]
+        let order = [QemuConstants.MEDIATYPE_EFI, QemuConstants.MEDIATYPE_EFI_SECURE, QemuConstants.MEDIATYPE_EFI_VARS, QemuConstants.MEDIATYPE_EFI_SECURE_VARS, QemuConstants.MEDIATYPE_OPENCORE,  QemuConstants.MEDIATYPE_DISK, QemuConstants.MEDIATYPE_NVME, QemuConstants.MEDIATYPE_CDROM]
         
         let sortedDrives = virtualMachine.drives.sorted {
             let firstIndex = order.firstIndex(of: $0.mediaType) ?? Int.max

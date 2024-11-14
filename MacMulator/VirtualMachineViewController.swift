@@ -362,7 +362,6 @@ class VirtualMachineViewController: NSViewController {
                 let shell = Shell()
                 shell.runCommand(swTpmPath + "/swtpm socket --tpmstate dir=" + Utils.escape(vm.path) + "/tpm  --ctrl type=unixio,path=" + Utils.escape(vm.path) + "/tpm/socket  --log level=20 --tpm2", vm.path, uponCompletion: { result in
                     print("swtpm done")
-                    //Utils.showAlert(window: self.view.window!, style: NSAlert.Style.informational, message: "swtpm terminated")
                 })
             }
             try runner.runVM(recoveryMode: inRecovery, uponCompletion: {
@@ -385,10 +384,15 @@ class VirtualMachineViewController: NSViewController {
                 self.setRunningStatus(vm, true);
                 rootController.setRunningVM(vm, runner);
                 
+                if vm.bootMode == nil {
+                    vm.bootMode = Utils.getBootModeForSubType(vm.os, vm.subtype)
+                    vm.writeToPlist()
+                }
+                
                 if vm.type == MacMulatorConstants.APPLE_VM {
                     self.performSegue(withIdentifier: MacMulatorConstants.SHOW_VM_VIEW_SEGUE, sender: VMToStart(vm: vm, inRecovery: inRecovery, runner: runner));
                 } else {
-                    if (vm.subtype == QemuConstants.SUB_WINDOWS_11 && vm.architecture == QemuConstants.ARCH_X64) || (vm.os == QemuConstants.OS_MAC && vm.architecture == QemuConstants.ARCH_X64) {
+                    if vm.bootMode == QemuConstants.BOOT_UEFI || vm.bootMode == QemuConstants.BOOT_UEFI_SECURE || (vm.os == QemuConstants.OS_MAC && vm.architecture == QemuConstants.ARCH_X64) {
                         self.performSegue(withIdentifier: MacMulatorConstants.START_VM_SEGUE, sender: VMToStart(vm: vm, inRecovery: inRecovery, runner: runner));
                     } else {
                         startVM_internal(runner, inRecovery, vm)
@@ -404,8 +408,8 @@ class VirtualMachineViewController: NSViewController {
             
             if let rootController = self.rootController {
                 if let vm = rootController.currentVm {
-                    if (vm.os == QemuConstants.OS_MAC && vm.architecture == QemuConstants.ARCH_X64) {
-                        QemuUtils.restoreOpenCoreConfigTemplate(virtualMachine: vm, uponCompletion: {
+                    if QemuUtils.requiresOpenCore(vm) {
+                        QemuUtils.removeOpenCoreConfig(virtualMachine: vm, uponCompletion: {
                             terminationCode in
                             if terminationCode != 0 {
                                 Utils.showAlert(window: self.view.window!, style: NSAlert.Style.critical, message: String(format: NSLocalizedString("VirtualMachineViewController.vmExecutionFailed", comment: ""), result.error?.localizedCapitalized ?? NSLocalizedString("VirtualMachineViewController.notSpecified", comment: "")))
